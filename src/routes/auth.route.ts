@@ -29,11 +29,8 @@ AuthRoutes.post( '/Login', [], (req: Request, res: Response ) => {
 
         let rowString = JSON.stringify(data);
         let jsonData = JSON.parse( rowString );
-
-        console.log('res login', jsonData[0].showError);
         
         let showError = Number(jsonData[0].showError) ;
-        console.log('showError ========', showError);
         let token = '';
         if (showError == 0) {
           
@@ -46,7 +43,6 @@ AuthRoutes.post( '/Login', [], (req: Request, res: Response ) => {
               token = jwt.sign( jsonData[0], SEED_KEY, {expiresIn: '7d'} );
               showError = 0;
             }
-
 
         }
 
