@@ -3,12 +3,16 @@ import moment from "moment";
 import path from 'path';
 import fs from 'fs';
 import { FILES_VALID } from "../environments/global.environment";
+import MysqlClass from '../classes/mysqlClass';
+import { verifyToken } from "../middlewares/token.md";
 
+const mysql = MysqlClass.instance;
 let UploadRoute = Router();
 
-UploadRoute.post('/upload/:id', (req: Request, res: Response) => {
+UploadRoute.post('/upload/:id', [verifyToken], (req: any, res: Response) => {
 
     let id = req.params.id || '';
+    let pkUserToken = req.userData.pkUser || '';
 
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).json({
@@ -43,13 +47,9 @@ UploadRoute.post('/upload/:id', (req: Request, res: Response) => {
         if (err)
             return res.status(500).send(err);
 
-        
+        updateImgProduct( id, fileNameUpload, pkUserToken, res );
     
-        res.json({
-            ok: true,
-            fileNameUpload
-            // node_path: `http://localhost:3000/product/${fileNameUpload}`
-        });
+        
     });
 
 });
@@ -75,5 +75,53 @@ UploadRoute.delete('/oldimage/:namefile', (req: Request, res: Response) => {
         }
     })
 });
+
+function delImg( img: string ): void {
+
+    let oldPath = path.resolve( __dirname, '../uploads/', img.toString() );
+    if ( fs.existsSync( oldPath ) ) {
+        fs.unlinkSync(oldPath);
+    }
+}
+
+function updateImgProduct( pk: number, img: string, fkUser: number, res: Response ) {
+    // as_sp_update_imgProduct
+    
+    let sql = `CALL as_sp_update_imgProduct( `
+    sql += `${ pk },`;
+    sql += `'${ img }',`;
+    sql += `${ fkUser }`;
+    sql += `);`;
+
+    mysql.onExecuteQuery( sql, (error: any, data: any) => {
+        
+        if (error) {
+            
+            delImg(img);
+
+            return res.status(400).json({
+                ok: false,
+                error
+            });
+        }
+
+        let rowString = JSON.stringify(data);
+        let jsonData = JSON.parse( rowString );
+        
+        let showError = Number(jsonData[0].showError) ;
+        if (showError == 0) {
+            delImg( jsonData[0].oldImg || 'xd.png' );
+            jsonData[0].urlImg = img;
+        }
+
+        res.json({
+            ok: true,
+            data: jsonData[0],
+            showError
+        });
+    
+    });
+
+}
 
 export default UploadRoute;

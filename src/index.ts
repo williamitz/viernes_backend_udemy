@@ -33,8 +33,8 @@ server.onRunServer( (err: any) => {
 
     console.log('Servidor corriendo en puerto ', server.port);
     
-    db.onConnect( () => {
-        
+    db.onConnect( (error: any) => {
+        if (error) return console.log('error de conexion con bd');
         console.log('Conectado con base de datos :D');
     });
 } );

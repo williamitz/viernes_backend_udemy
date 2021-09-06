@@ -5,7 +5,7 @@ import fs from 'fs';
 
 let ImgRoute = Router();
 
-ImgRoute.get('/product/:nameFile', (req: Request, res: Response) => {
+ImgRoute.get('/file/:nameFile', (req: Request, res: Response) => {
 
     const image = req.params.nameFile || 'none.xd';
     
@@ -18,4 +18,5 @@ ImgRoute.get('/product/:nameFile', (req: Request, res: Response) => {
 
     res.sendFile(defaultPath);
 });
+
 export default ImgRoute;
