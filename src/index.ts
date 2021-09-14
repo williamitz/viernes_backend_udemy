@@ -1,5 +1,6 @@
 import cors from 'cors';
 import { json, urlencoded } from 'body-parser';
+import express from 'express';
 import fileUpload from 'express-fileupload';
 
 import { MainClass } from "./classes/main.class";
@@ -12,8 +13,11 @@ let db = MysqlClass.instance;
 
 server.app.use( cors( { origin: true, credentials: true } ) );
 
-server.app.use( urlencoded({extended: false}) )
-server.app.use( json() );
+// server.app.use( urlencoded({extended: false}) )
+// server.app.use( json() );
+
+server.app.use(express.json());
+server.app.use(express.urlencoded({ extended: false }));
 
 server.app.use( fileUpload() );
 

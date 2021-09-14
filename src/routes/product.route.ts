@@ -39,6 +39,7 @@ ProductRoute.post( '/Product', [verifyToken], (req: any, res: Response) => {
         res.json({
             ok: true,
             data: data[0],
+            pk: data[0].pk || 0,
             showError
         });
     
@@ -87,7 +88,7 @@ ProductRoute.put( '/Product/:id', [verifyToken], (req: any, res: Response) => {
     let body: IProduct = req.body;
     let pkUser = req.userData.pkUser || 0;
 
-    console.log('body update', body);
+    console.log('body update', req.body);
 
     let sql = `CALL as_sp_update_product( `
     sql += `${ pkProduct },`;
